@@ -1,9 +1,10 @@
-const fs = require("fs");
-const http = require("http");
-const url = require("url");
-const replaceTemplate = require("./modules/replaceTemplate");
+const fs = require('fs');
+const http = require('http');
+const url = require('url');
+const slugify = require('slugify');
+const replaceTemplate = require('./modules/replaceTemplate');
 
-const encoding = "utf-8";
+const encoding = 'utf-8';
 
 ////////////////////////Files
 
@@ -41,19 +42,22 @@ const productTemplate = fs.readFileSync(
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, encoding);
 const objData = JSON.parse(data);
 
+const slugs = objData.map((el) => slugify(el.productName, { lower: true }));
+// console.log(slugs);
+
 const server = http.createServer((req, res) => {
   //   console.log(req.url);
   const { query, pathname } = url.parse(req.url, true);
 
   // OVERVIEW PAGE
-  if (pathname === "/" || pathname === "/overview") {
+  if (pathname === '/' || pathname === '/overview') {
     res.writeHead(200, {
-      "content-type": "text/html",
+      'content-type': 'text/html',
     });
 
     const cardsHtml = objData
       .map((el) => replaceTemplate(cardTemplate, el))
-      .join("");
+      .join('');
     // console.log(cardsHtml);
 
     const overviewPage = overviewTemplate.replace(
@@ -63,9 +67,9 @@ const server = http.createServer((req, res) => {
     res.end(overviewPage);
   }
   // PRODUCT PAGE
-  else if (pathname === "/product") {
+  else if (pathname === '/product') {
     res.writeHead(200, {
-      "content-type": "text/html",
+      'content-type': 'text/html',
     });
     // console.log(query);
     let product = objData[query.id];
@@ -73,10 +77,10 @@ const server = http.createServer((req, res) => {
     res.end(productPage);
   }
   // API PAGE
-  else if (pathname === "/api") {
+  else if (pathname === '/api') {
     res
       .writeHead(200, {
-        "content-type": "application/json",
+        'content-type': 'application/json',
       })
       .end(data);
   }
@@ -84,12 +88,12 @@ const server = http.createServer((req, res) => {
   else {
     res
       .writeHead(404, {
-        "content-type": "text/html",
+        'content-type': 'text/html',
       })
-      .end("NOT FOUND 404 :(");
+      .end('NOT FOUND 404 :(');
   }
 });
 
-server.listen(PORT, "127.0.0.1", () => {
+server.listen(PORT, '127.0.0.1', () => {
   console.log(`Server Running on Port ${PORT}`);
 });
